@@ -1,0 +1,15 @@
+import SeverusFlow from "./SeverusFlow";
+
+export function FeaturesSection() {
+    return (
+        <div className="flex flex-col justify-center">
+            <h3 className="text-4xl text-center mb-4 text-[#4ADE80] font-semibold">
+                How severus secure your data
+            </h3>
+            <h4 className="text-2xl text-center mb-5 text-white">
+                Two encrypted layers between you and the network
+            </h4>
+            <SeverusFlow />
+        </div>
+    );
+}

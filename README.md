@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Severus — Website
 
-## Getting Started
+Official website for **Severus**, a peer-to-peer chat with end-to-end encryption (Noise XX) and TLS. No accounts, no cloud, no message history.
 
-First, run the development server:
+The site consists of a landing page, a download page, documentation and a security page.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech stack
+
+- [Next.js](https://nextjs.org/) (App Router) + TypeScript
+- Tailwind CSS
+- Fonts via `next/font/google`: Inter, Manrope, Geist Mono
+- Deployed on Vercel
+
+## Routes
+
+| Route       | Description                                                                                                      |
+| ----------- | ---------------------------------------------------------------------------------------------------------------- |
+| `/`         | Landing page: hero with a "Try web client" button, security explainer, web client demo, "Try Severus now" CTA |
+| `/download` | Download buttons for Windows, Linux and macOS                                                                    |
+| `/docs`     | Documentation: install, host a server, connect as a client, whispers and rooms, verify your contact, connection status, troubleshooting |
+| `/security` | Security page (linked from the header)                                                                           |
+
+The header also contains an external link to the project's GitHub repository.
+
+### Landing page sections (`/`)
+
+1. **Hero** — project name, tagline and a "Try web client" button.
+2. **How Severus secures your data** — interactive diagram of the two encryption layers: Layer 1 (E2EE, Noise XX) and Layer 2 (TLS transport), shown along the path Client A → ISP / Internet → Client B.
+3. **Web client demo** — a demo of the client's connect screen with two connection modes: `Direct` and `QUIC / Iroh`.
+4. **CTA** — "Try Severus now" with Download and GitHub buttons.
+
+## Metadata & SEO
+
+Global metadata is defined in `app/layout.tsx` via the Next.js Metadata API and applies to all pages.
+
+| Field               | Value                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| `metadataBase`      | `https://severus-gwill1337.vercel.app` (`SITE_URL` constant)                           |
+| `title.default`     | `Severus — Private P2P Chat with End-to-End Encryption`                                |
+| `title.template`    | `%s \| Severus` — pages that set their own `title` get this suffix automatically       |
+| `description`       | Shared `DESCRIPTION` constant, reused in Open Graph and Twitter                        |
+| `applicationName`   | `Severus`                                                                              |
+| `keywords`          | encrypted chat, P2P messenger, end-to-end encryption, Noise Protocol, QUIC, decentralized chat, private messenger, Tauri, Rust |
+| `authors`           | gwill1337                                                                              |
+| `alternates.canonical` | `/` (resolved against `metadataBase`)                                               |
+| `category`          | `technology`                                                                           |
+
+### Open Graph & Twitter
+
+- Open Graph: `type: website`, `siteName: Severus`, locale `en_US`.
+- Twitter: `summary_large_image` card.
+- Both use the same preview image: `/og-image.png` (1200×630). The file must exist in `public/`.
+
+### Robots
+
+Indexing and following are enabled for all crawlers. For Googlebot, `max-image-preview` is `large` and `max-snippet` / `max-video-preview` are unlimited (`-1`).
+
+### Viewport
+
+```ts
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Per-page metadata
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+To set a title or description for a specific page, export `metadata` from its `page.tsx`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```ts
+export const metadata: Metadata = {
+  title: "Docs", // renders as "Docs | Severus"
+  description: "How to install, host and connect with Severus.",
+};
+```
 
-## Learn More
+## Layout
 
-To learn more about Next.js, take a look at the following resources:
+`app/layout.tsx` is the root layout. It:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- connects the fonts and exposes them as CSS variables (`--font-sans`, `--font-manrope-sans`, `--font-geist-mono`);
+- wraps every page in `<Header />`, `<main>` and `<Footer />`;
+- uses a dark background (`#050505`) and a full-height flex column so the footer stays at the bottom.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+The project is deployed to Vercel. If you change the domain, update the `SITE_URL` constant in `app/layout.tsx` — it affects the canonical URL and Open Graph links.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All rights reserved © 2026 Gwill1337.
