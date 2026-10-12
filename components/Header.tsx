@@ -19,8 +19,8 @@ export function Header() {
                 <Link href="/" className="font-sans font-semibold tracking-widest text-white text-xl sm:text-3xl px-2 ml-3 md:ml-10">
                     Severus
                 </Link>
-                <div className="absolute right-5 md:right-10 gap-7">
-                    <nav className="hidden md:flex">
+                <div className="absolute right-5 md:right-10">
+                    <nav className="hidden md:flex gap-7">
                         {navLinks.map((link) => (
                             <a
                                 key={link.href}
