@@ -10,7 +10,7 @@ export default function DownloadClient() {
             <h2 className="text-center text-4xl font-semibold text-white ">
                 Download version for your system
             </h2>
-            <div className="flex justify-center mt-15 gap-10">
+            <div className="flex flex-col md:flex-row items-center justify-center mt-15 gap-10">
                 <DropMenuWindows />
                 <DropMenuLinux/>
                 <DropMenuMacOS/>

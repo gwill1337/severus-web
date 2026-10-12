@@ -132,7 +132,7 @@ export default function SeverusDemo() {
 
     if (activeUserId) handleCode(activeUserId);
 
-    push(chatKey, { from: nickUsername, body: text });
+    push(chatKey, { from: 'me', body: text });
 
     const roomBots = activeRoom ? bots.filter((b) => activeRoom.users.includes(b.id)) : [];
     const bot = activeRoom ? roomBots[Math.floor(Math.random() * roomBots.length)] : bots.find((b) => b.id === activeUserId);
