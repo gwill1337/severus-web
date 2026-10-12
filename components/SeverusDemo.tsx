@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from "react";
 
 /* ================= TYPES ================= */
 
-type User = { id: string; username: string };
+type User = { id: string; username: string; encryptionCode?: string; };
 type Msg = { from: string; body: string; sys?: boolean };
 type Dialogs = Record<string, Msg[]>;
 type Room = { name: string; users: string[] };
 type Bot = User & { lines: string[] };
+
 
 /* ================= TEST DATA ================= */
 // Static ids to avoid hydration mismatch during SSR.
@@ -22,6 +23,12 @@ const BOTS: Bot[] = [
   { id: "u-minerva", username: "Minerva", lines: ["Traffic runs over TLS + Noise XX.", "Fingerprint saved (TOFU).", "Agreed."] },
   { id: "u-albus", username: "Albus", lines: ["Welcome to Severus.", "You can whisper or chat in a room.", "See you around!"] },
 ];
+
+const randomHex = (length: number): string =>
+  Array.from({ length }, () => Math.floor(Math.random() * 16).toString(16)).join("");
+
+const generateCode = (groups = 6, groupLength = 5): string =>
+  Array.from({ length: groups }, () => randomHex(groupLength)).join(" ");
 
 const INITIAL_ROOMS: Record<string, Room> = {
   [GENERAL_ID]: { name: "general", users: ["u-lily", "u-draco", "u-minerva"] },
@@ -72,6 +79,11 @@ export default function SeverusDemo() {
     ? [{ id: ME_ID, username: `${nickUsername} (me)` }, ...BOTS.filter((b) => activeRoom.users.includes(b.id))]
     : BOTS;
 
+  const [bots, setBots] = useState<Bot[]>(BOTS);
+
+  const activeBot = bots.find((b) => b.id === activeUserId) ?? null;
+  const sessionStarted = !!activeBot?.encryptionCode;
+
   /* ---------- effects ---------- */
 
   useEffect(() => {
@@ -101,13 +113,14 @@ export default function SeverusDemo() {
   const handleConnect = () => {
     const n = nickname.trim();
     if (!n) return setError("Enter a nickname");
-    if (BOTS.some((b) => b.username.toLowerCase() === n.toLowerCase())) return setError("Name already taken");
+    if (bots.some((b) => b.username.toLowerCase() === n.toLowerCase())) return setError("Name already taken");
     setError("");
     setConnecting(true);
     timeouts.current.push(
       setTimeout(() => {
         setConnecting(false);
         setConnected(true);
+        handleCode("u-albus");
       }, 700)
     );
   };
@@ -116,10 +129,13 @@ export default function SeverusDemo() {
     const text = msgInput.trim();
     if (!text || !chatKey) return;
     setMsgInput("");
+
+    if (activeUserId) handleCode(activeUserId);
+
     push(chatKey, { from: nickUsername, body: text });
 
-    const roomBots = activeRoom ? BOTS.filter((b) => activeRoom.users.includes(b.id)) : [];
-    const bot = activeRoom ? roomBots[Math.floor(Math.random() * roomBots.length)] : BOTS.find((b) => b.id === activeUserId);
+    const roomBots = activeRoom ? bots.filter((b) => activeRoom.users.includes(b.id)) : [];
+    const bot = activeRoom ? roomBots[Math.floor(Math.random() * roomBots.length)] : bots.find((b) => b.id === activeUserId);
     if (!bot) return;
 
     timeouts.current.push(
@@ -158,9 +174,20 @@ export default function SeverusDemo() {
     if (!activeRoomId) return;
     try {
       await navigator.clipboard.writeText(activeRoomId);
-    } catch {}
+    } catch { }
     flash("Copied!");
   };
+
+  const handleCode = (userId: string) => {
+    setBots((prev) =>
+      prev.map((b) =>
+        b.id === userId && !b.encryptionCode
+          ? { ...b, encryptionCode: generateCode() }
+          : b
+      )
+    );
+  };
+
 
   /* ================= RENDER ================= */
 
@@ -191,9 +218,8 @@ export default function SeverusDemo() {
                     setConnType(t);
                     setIp(t === "direct" ? "127.0.0.1:5173" : "endpointaaq3k5y7demo2ticketx4n6…");
                   }}
-                  className={`flex-1 rounded border border-slytherin py-2 text-xs uppercase tracking-widest transition-all ${
-                    connType === t ? "bg-slytherin/60 text-potion-glow shadow-[0_0_10px_rgba(74,222,128,0.2)]" : "hover:bg-slytherin/10"
-                  }`}
+                  className={`flex-1 rounded border border-slytherin py-2 text-xs uppercase tracking-widest transition-all ${connType === t ? "bg-slytherin/60 text-potion-glow shadow-[0_0_10px_rgba(74,222,128,0.2)]" : "hover:bg-slytherin/10"
+                    }`}
                 >
                   {t === "direct" ? "Direct" : "QUIC / Iroh"}
                 </button>
@@ -263,9 +289,8 @@ export default function SeverusDemo() {
               <span className="text-lg font-serif tracking-[0.25em] uppercase">Severus </span>
               <span className={ping > 150 ? "text-red-500" : "text-potion-glow"}>{ping}ms</span>
               <div
-                className={`text-[10px] uppercase tracking-widest ${
-                  connectionState === "ok" ? "text-green-500" : connectionState === "bad" ? "text-red-500 animate-pulse" : "text-gray-500"
-                }`}
+                className={`text-[10px] uppercase tracking-widest ${connectionState === "ok" ? "text-green-500" : connectionState === "bad" ? "text-red-500 animate-pulse" : "text-gray-500"
+                  }`}
               >
                 {connectionState === "ok" && `Connected to ${ip.length > 21 ? ip.slice(0, 21) + "..." : ip}`}
                 {connectionState === "bad" && "Connection unstable"}
@@ -289,9 +314,8 @@ export default function SeverusDemo() {
                     setActiveUserId(u.id);
                     setActiveRoomId(null);
                   }}
-                  className={`text-xs p-2 mb-1 rounded cursor-pointer transition-colors ${
-                    activeUserId === u.id ? "bg-slytherin/40 text-potion-glow" : "hover:bg-white/5"
-                  }`}
+                  className={`text-xs p-2 mb-1 rounded cursor-pointer transition-colors ${activeUserId === u.id ? "bg-slytherin/40 text-potion-glow" : "hover:bg-white/5"
+                    }`}
                 >
                   {u.username}
                 </div>
@@ -301,7 +325,7 @@ export default function SeverusDemo() {
             {/* chat pane */}
             <div className="flex-1 min-w-0 flex flex-col rounded-r-lg max-sm:rounded-lg border border-white/10 bg-dungeon-surface/60 backdrop-blur p-3 overflow-hidden">
               <div className="px-2 pb-2 mb-2 border-b border-white/5 flex justify-between items-center">
-                <span className="text-[10px] uppercase tracking-[0.25em] text-gray-400 flex items-center gap-1.5">
+                <div className="flex-1 text-[10px] uppercase tracking-[0.25em] text-gray-400 flex items-center gap-1.5">
                   {activeRoom ? (
                     <>
                       Location: Room <span className="text-white">{activeRoom.name}</span> [
@@ -311,11 +335,31 @@ export default function SeverusDemo() {
                       ]
                     </>
                   ) : activeUserId ? (
-                    `Whisper: ${BOTS.find((b) => b.id === activeUserId)?.username}`
+                    <div className="flex gap-1.5 items-center justify-between w-full">
+                      <div>Whisper: {activeBot?.username}</div>
+                      {sessionStarted ? (
+                        <div className="mt-1 normal-case tracking-normal ">
+                          <h1 className="text-[10px] mt-1 text-x text-green-500">
+                            E2EE ACTIVE
+                          </h1>
+                          <div className="mt-1 text-xs text-gray-200/80">
+                            Safety number:{" "}
+                            <span className="text-emerald-400">{activeBot!.encryptionCode}</span>
+                          </div>
+                          <h2 className="mt-0.5 text-[10px] text-gray-500">
+                            Compare it with your contact over another channel (call, other messenger).
+                          </h2>
+                        </div>
+                      ) : (
+                        <div className="mt-1 normal-case tracking-normal">
+                          Secure session starts with your first message
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     "Select Target"
                   )}
-                </span>
+                </div>
                 {activeRoomId && (
                   <button onClick={() => setActiveRoomId(null)} className="text-[9px] text-red-900 hover:text-red-500 uppercase">
                     Leave Room
@@ -362,9 +406,8 @@ export default function SeverusDemo() {
 
       {/* toast */}
       <div
-        className={`pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 z-20 rounded bg-slytherin px-3.5 py-1.5 text-[11px] text-potion-glow transition-opacity ${
-          toast ? "opacity-100" : "opacity-0"
-        }`}
+        className={`pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 z-20 rounded bg-slytherin px-3.5 py-1.5 text-[11px] text-potion-glow transition-opacity ${toast ? "opacity-100" : "opacity-0"
+          }`}
       >
         {toast}
       </div>
