@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 const payloads = [
-    { href: "https://github.com/gwill1337/Severus/releases/download/app-v1.0.0/Severus_1.0.0_x64-setup.exe", text: "Windows x64 .exe" },
-    { href: "https://github.com/gwill1337/Severus/releases/download/app-v1.0.0/Severus_1.0.0_x64_en-US.msi", text: " Windows x64 .msi" },
+    { href: "https://github.com/gwill1337/Severus/releases/download/app-v2.0.0/Severus_2.0.0_x64-setup.exe", text: "Windows x64 .exe" },
+    { href: "https://github.com/gwill1337/Severus/releases/download/app-v2.0.0/Severus_2.0.0_x64_en-US.msi", text: " Windows x64 .msi" },
 ]
 
 export function DropMenuWindows() {

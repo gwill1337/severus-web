@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 const payloads = [
-    {href: "https://github.com/gwill1337/Severus/releases/download/app-v1.0.0/Severus_1.0.0_amd64.AppImage", text: "Linux AppImage"},
-    {href: "https://github.com/gwill1337/Severus/releases/download/app-v1.0.0/Severus_1.0.0_amd64.deb", text: " Ubuntu, Debian, Mint"},
-    {href: "https://github.com/gwill1337/Severus/releases/download/app-v1.0.0/Severus-1.0.0-1.x86_64.rpm", text: "Fedora, openSUSE, RHEL"},
+    {href: "https://github.com/gwill1337/Severus/releases/download/app-v2.0.0/Severus_2.0.0_amd64.AppImage", text: "Linux AppImage"},
+    {href: "https://github.com/gwill1337/Severus/releases/download/app-v2.0.0/Severus_2.0.0_amd64.deb", text: " Ubuntu, Debian, Mint"},
+    {href: "https://github.com/gwill1337/Severus/releases/download/app-v2.0.0/Severus-2.0.0-1.x86_64.rpm", text: "Fedora, openSUSE, RHEL"},
 ]
 
 export function DropMenuLinux() {
